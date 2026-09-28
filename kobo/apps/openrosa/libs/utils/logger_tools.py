@@ -302,9 +302,6 @@ def create_instance(
                                         processed.
         PermissionDenied: If the submission fails permission checks.
     """
-    if username:
-        username = username.lower()
-
     xml = smart_str(xml_file.read())
     validate_xml_chars(xml)
     xform = get_xform_from_submission(xml, username, uuid)
@@ -594,7 +591,8 @@ def get_xform_from_submission(xml, username, uuid=None):
             owned = [
                 xform
                 for xform in conforming
-                if username and xform.user.username == username
+                if username
+                and xform.user.username.casefold() == username.casefold()
             ]
             if len(owned) == 1:
                 return owned[0]
