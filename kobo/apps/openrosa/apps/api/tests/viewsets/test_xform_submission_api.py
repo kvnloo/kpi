@@ -309,6 +309,9 @@ class TestXFormSubmissionApi(TestAbstractViewSet):
 
         self.xform.require_auth = False
         self.xform.save(update_fields=['require_auth'])
+        self.user.username = 'BoB'
+        self.user.save(update_fields=['username'])
+        route_username = 'bOb'
 
         s = self.surveys[0]
         media_file = '1335783522563.jpg'
@@ -340,11 +343,11 @@ class TestXFormSubmissionApi(TestAbstractViewSet):
             with open(submission_path) as sf:
                 data = {'xml_submission_file': sf, 'media_file': f}
                 request = self.factory.post(
-                    f'/{self.user.username}/submission', data
+                    f'/{route_username}/submission', data
                 )
                 request.user = AnonymousUser()
 
-                response = self.view(request, username=self.user.username)
+                response = self.view(request, username=route_username)
                 self.assertContains(
                     response, 'Successful submission', status_code=201
                 )
@@ -358,7 +361,7 @@ class TestXFormSubmissionApi(TestAbstractViewSet):
                 )
                 self.assertEqual(
                     response['Location'],
-                    f'http://testserver/{self.user.username}/submission',
+                    f'http://testserver/{route_username}/submission',
                 )
 
     def test_post_attachments_with_invisible_characters_persist(self):
