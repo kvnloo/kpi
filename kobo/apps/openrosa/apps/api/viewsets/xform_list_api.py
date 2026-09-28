@@ -139,7 +139,7 @@ class XFormListApi(OpenRosaReadOnlyModelViewSet):
             # Only return projects that allow anonymous submissions and are managed
             # by the user matching the given username.
             try:
-                openrosa_user = User.objects.get(username=username)
+                openrosa_user = User.objects.get(username__iexact=username)
             except User.DoesNotExist:
                 # Intentionally returns an empty list instead of a 404 to indicate
                 # no results found.
@@ -157,7 +157,7 @@ class XFormListApi(OpenRosaReadOnlyModelViewSet):
             )
 
             queryset = queryset.filter(
-                Q(user__username=username.lower()) | Q(kpi_asset_uid__in=asset_uids),
+                Q(user=openrosa_user) | Q(kpi_asset_uid__in=asset_uids),
                 require_auth=False,
             )
 
