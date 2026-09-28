@@ -591,8 +591,7 @@ def get_xform_from_submission(xml, username, uuid=None):
             owned = [
                 xform
                 for xform in conforming
-                if username
-                and xform.user.username.casefold() == username.casefold()
+                if username and xform.user.username.casefold() == username.casefold()
             ]
             if len(owned) == 1:
                 return owned[0]
