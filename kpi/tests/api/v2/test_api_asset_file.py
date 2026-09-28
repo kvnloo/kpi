@@ -66,3 +66,22 @@ class AssetFileApiTests(BaseAssetTestCase):
         )
 
         assert response.status_code == status.HTTP_201_CREATED
+
+
+    def test_allows_spaces_in_non_csv_form_media_filename(self):
+        response = self.client.post(
+            self.url,
+            {
+                'file_type': AssetFile.FORM_MEDIA,
+                'description': 'default',
+                'base64Encoded': (
+                    'data:image/png;base64,'
+                    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwC'
+                    'AAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='
+                ),
+                'metadata': {'filename': 'field photo.png'},
+            },
+            format='json',
+        )
+
+        assert response.status_code == status.HTTP_201_CREATED
