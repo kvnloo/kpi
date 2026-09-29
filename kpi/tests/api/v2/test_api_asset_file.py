@@ -67,7 +67,6 @@ class AssetFileApiTests(BaseAssetTestCase):
 
         assert response.status_code == status.HTTP_201_CREATED
 
-
     def test_allows_spaces_in_non_csv_form_media_filename(self):
         response = self.client.post(
             self.url,

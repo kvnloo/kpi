@@ -9,8 +9,8 @@ from urllib.parse import unquote, urlparse
 from django.core.files.base import ContentFile
 from django.core.validators import (
     URLValidator,
-    ValidationError as DjangoValidationError,
 )
+from django.core.validators import ValidationError as DjangoValidationError
 from django.utils.translation import gettext as t
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -152,17 +152,12 @@ class AssetFileSerializer(serializers.ModelSerializer):
 
         metadata['filename'] = attr['content'].name
 
-    def _validate_form_media_filename(
-        self, filename: str, field_name: str
-    ):
+    def _validate_form_media_filename(self, filename: str, field_name: str):
         if self.__file_type != AssetFile.FORM_MEDIA:
             return
 
         decoded_filename = unquote(filename)
-        if (
-            decoded_filename.lower().endswith('.csv')
-            and any(char.isspace() for char in decoded_filename)
-        ):
+        if decoded_filename.lower().endswith('.csv') and ' ' in decoded_filename:
             error = self.__format_error(
                 field_name,
                 t(
