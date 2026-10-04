@@ -4,13 +4,13 @@ import json
 import os
 from mimetypes import guess_type
 from typing import Union
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 from django.core.files.base import ContentFile
 from django.core.validators import (
     URLValidator,
-    ValidationError as DjangoValidationError,
 )
+from django.core.validators import ValidationError as DjangoValidationError
 from django.utils.translation import gettext as t
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -99,6 +99,7 @@ class AssetFileSerializer(serializers.ModelSerializer):
         # Common validators
         filename = metadata['filename']
         self.__validate_mime_type(filename, validated_field)
+        self._validate_form_media_filename(filename, validated_field)
         self._validate_duplicate(filename, validated_field)
 
         # Remove `'base64Encoded'` from attributes passed to the model
@@ -150,6 +151,21 @@ class AssetFileSerializer(serializers.ModelSerializer):
             })
 
         metadata['filename'] = attr['content'].name
+
+    def _validate_form_media_filename(self, filename: str, field_name: str):
+        if self.__file_type != AssetFile.FORM_MEDIA:
+            return
+
+        decoded_filename = unquote(filename)
+        if decoded_filename.lower().endswith('.csv') and ' ' in decoded_filename:
+            error = self.__format_error(
+                field_name,
+                t(
+                    'CSV filenames cannot contain spaces. Rename the file and '
+                    'try again.'
+                ),
+            )
+            raise serializers.ValidationError(error)
 
     def _validate_duplicate(self, filename: str, field_name: str):
 
